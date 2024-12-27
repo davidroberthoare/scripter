@@ -1,14 +1,6 @@
-//SCRIPT EDITING FUNCTIONS
-
-Quill.register('modules/cursors', QuillCursors);
-
-// Constant to simulate a high-latency connection when sending cursor
-// position updates.
-const CURSOR_LATENCY = 0; //1000;
-// Constant to simulate a high-latency connection when sending
-// text changes.
-const TEXT_LATENCY = 0; //500;
-
+// localstorage namespace
+const scripts = store.namespace('scripts');
+let script_name = "Untitled";
 
 let options = {
     theme: 'snow',
@@ -38,95 +30,6 @@ let options = {
 }
 const quill = new Quill('#editor', options);
 
-const cursors = quill.getModule('cursors');
-
-
-// // SETUP WebSocket CONNECTION & EVENTS
-// const scriptSocket = new WebSocket('wss://' + window.location.host + '/ws/script/' + script_id + '/')
-// scriptSocket.onopen = function (e) {
-//     console.log('WebSocket connection established', e);
-//     // Add your logic here for handling the connection establishment
-//     $$('#status1').text('CONNECTED')
-// };
-
-// scriptSocket.onmessage = function (e) {
-//     const data = JSON.parse(e.data)
-//     // console.log('ws onMessage', data)
-
-//     // if it's a state update
-//     if (data.state) {
-//         // load state into editor
-//         if (data.state.text) {
-//             console.log("loading editor with state", data.state.text)
-//             quill.setContents(JSON.parse(data.state.text));
-//         }
-
-//         if (data.state.connected_users) {
-//             console.log('connected_users', data.state.connected_users)
-//             let usernames = []
-//             for (const u of data.state.connected_users) {
-//                 console.log("users connected", u)
-//                 usernames.push(u.username)  // just use to display usernames below
-
-//                 // create the cursors for as many users are connected
-//                 cursors.createCursor(u.id, u.username, getColorForUserId(u.id));
-//             }
-//             $$('#status2').text(usernames.join(", "))
-//         }
-//     }
-//     // if we receive a text-change message with a delta, update the editor
-//     else if (data.type == "text_change" && data.delta) {
-//         quill.updateContents(data.delta);
-//     }
-//     // if we receive a text-change message with a delta, update the editor
-//     else if (data.type == "selection_change" && data.range) {
-//         cursors.moveCursor(data.userid, data.range)
-//     }
-//     else {
-//     }
-// }
-
-// scriptSocket.onclose = function (e) {
-//     console.error('Script socket closed unexpectedly', e)
-//     $$('#status1').text('DISCONNECTED: Please reload page.')
-// }
-
-
-
-
-
-// CURSORS (synchronization functions from within the quill editors)
-
-
-// quill.on('text-change', function (delta, oldContents, source) {
-//     // console.log("text changed", delta, oldContents, source)
-//     if (source === 'user') {
-//         // quill.updateContents(delta);
-//         if (scriptSocket && scriptSocket.readyState == scriptSocket.OPEN) {
-//             scriptSocket.send(JSON.stringify({
-//                 'type': 'text_change',
-//                 'delta': delta
-//             }));
-//         }
-//     }
-// });
-
-// const sendUpdatedSelection = debounce((range) => {
-//     scriptSocket.send(JSON.stringify({
-//         'type': 'selection_change',
-//         'userid': user_id,
-//         'range': range
-//     }))
-// }, 500);
-
-// quill.on('selection-change', function (range, oldRange, source) {
-//     // console.log("selection changed", range, oldRange, source)
-//     if (source === 'user') {
-//         if (scriptSocket && scriptSocket.readyState == scriptSocket.OPEN) {
-//             sendUpdatedSelection(range);
-//         }
-//     }
-// });
 
 function debounce(func, delay) {
     let timeoutId;
@@ -140,52 +43,59 @@ function debounce(func, delay) {
 
 
 function saveEditorState() {
-    // if (is_owner == true) {
-
-    //     scriptSocket.send(JSON.stringify({
-    //         "type": "save_cmd",
-    //         "text": JSON.stringify(quill.getContents())
-    //     }));
-    //     let toast = app.toast.create({
-    //         text: 'Saved',
-    //         position: 'top',
-    //         closeTimeout: 1000,
-    //         closeButton: true
-    //     });
-    //     toast.open()
-    // } else {
-    //     console.log("NOT the owner")
-    // }
+    console.log("saving...", script_name)
+    scripts.set(script_name, quill.getContents())
 }
 
 // UI LISTENERS
-$$("#save_btn").click(function () {
-    saveEditorState();
-})
 
-$$("#rename_btn").click(function () {
-    app.dialog.prompt("What do you want to call your script?", "Rename Script?", function (name) {
-        console.log("renaming script with name", name)
-        API({
-            endpoint: "script/" + script_id + "/rename",
-            params: { name: name },
-            type: "GET",
-            success_callback: function (api_response) {
-                console.log("success!", api_response);
-                script_name = name;
-            },
-            error_callback: function () {
-                var toast = app.toast.create({
-                    text: "Whoops! Error with that request. Please try again...",
-                    position: 'center',
-                    closeTimeout: 2000,
-                    destroyOnClose: true
-                }).open()
-            }
+function save(saveAs){
+    app.panel.close()
+    if(script_name == "Untitled" || saveAs == true){
+        app.dialog.prompt("What do you want to call your script?", "Save Script as...", function (name) {
+            script_name = name;
+            $$("#script_title").text(script_name)
+            saveEditorState();
         });
-    }, null, script_name)
-})
+    }else{
+        saveEditorState();
+    }
 
+}
+
+
+var script_picker;
+
+
+function openScript(){
+    app.panel.close()
+    if(scripts.keys().length==0){
+        app.dialog.alert("No saved scripts to open", "Open file?");
+        return;
+    }
+
+    script_picker = app.picker.create({
+        toolbarCloseText: "Open Saved Script",
+        cols: [
+           {
+            textAlign: 'left',
+             values: scripts.keys(),
+           }
+         ],
+         on: {
+            close: function (picker) {
+              console.log('Picker closed', picker)
+              script_name = picker.value[0];
+              $$("#script_title").text(script_name)
+              let ops = scripts.get(script_name)
+              quill.setContents(ops);
+            }
+          }
+      });
+
+      script_picker.open();
+
+}
 
 quill.on('text-change', (delta, oldDelta, source) => {
     if (source == 'user') {
@@ -224,7 +134,7 @@ document.addEventListener("keydown", function (e) {
     //save document
     if ((window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey) && e.key == 's') {
         e.preventDefault();
-        saveEditorState();
+        save();
     }
 
     // control-key listeners for style changes
