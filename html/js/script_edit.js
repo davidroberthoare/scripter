@@ -1,8 +1,5 @@
 //SCRIPT EDITING FUNCTIONS
 
-
-
-
 Quill.register('modules/cursors', QuillCursors);
 
 // Constant to simulate a high-latency connection when sending cursor
@@ -41,72 +38,58 @@ let options = {
 }
 const quill = new Quill('#editor', options);
 
-
-// fetch('/static/_OLD/sample_script2.txt')
-//     .then(response => response.text())
-//     .then(data => {
-//         console.log("got default script data")
-//         let dataObj = JSON.parse(data);
-//         quill.setContents(dataObj);
-//     })
-//     .catch(error => {
-//         console.error('Error:', error);
-//     });
-
-
-
 const cursors = quill.getModule('cursors');
 
 
-// SETUP WebSocket CONNECTION & EVENTS
-const scriptSocket = new WebSocket('wss://' + window.location.host + '/ws/script/' + script_id + '/')
-scriptSocket.onopen = function (e) {
-    console.log('WebSocket connection established', e);
-    // Add your logic here for handling the connection establishment
-    $$('#status1').text('CONNECTED')
-};
+// // SETUP WebSocket CONNECTION & EVENTS
+// const scriptSocket = new WebSocket('wss://' + window.location.host + '/ws/script/' + script_id + '/')
+// scriptSocket.onopen = function (e) {
+//     console.log('WebSocket connection established', e);
+//     // Add your logic here for handling the connection establishment
+//     $$('#status1').text('CONNECTED')
+// };
 
-scriptSocket.onmessage = function (e) {
-    const data = JSON.parse(e.data)
-    // console.log('ws onMessage', data)
+// scriptSocket.onmessage = function (e) {
+//     const data = JSON.parse(e.data)
+//     // console.log('ws onMessage', data)
 
-    // if it's a state update
-    if (data.state) {
-        // load state into editor
-        if (data.state.text) {
-            console.log("loading editor with state", data.state.text)
-            quill.setContents(JSON.parse(data.state.text));
-        }
+//     // if it's a state update
+//     if (data.state) {
+//         // load state into editor
+//         if (data.state.text) {
+//             console.log("loading editor with state", data.state.text)
+//             quill.setContents(JSON.parse(data.state.text));
+//         }
 
-        if (data.state.connected_users) {
-            console.log('connected_users', data.state.connected_users)
-            let usernames = []
-            for (const u of data.state.connected_users) {
-                console.log("users connected", u)
-                usernames.push(u.username)  // just use to display usernames below
+//         if (data.state.connected_users) {
+//             console.log('connected_users', data.state.connected_users)
+//             let usernames = []
+//             for (const u of data.state.connected_users) {
+//                 console.log("users connected", u)
+//                 usernames.push(u.username)  // just use to display usernames below
 
-                // create the cursors for as many users are connected
-                cursors.createCursor(u.id, u.username, getColorForUserId(u.id));
-            }
-            $$('#status2').text(usernames.join(", "))
-        }
-    }
-    // if we receive a text-change message with a delta, update the editor
-    else if (data.type == "text_change" && data.delta) {
-        quill.updateContents(data.delta);
-    }
-    // if we receive a text-change message with a delta, update the editor
-    else if (data.type == "selection_change" && data.range) {
-        cursors.moveCursor(data.userid, data.range)
-    }
-    else {
-    }
-}
+//                 // create the cursors for as many users are connected
+//                 cursors.createCursor(u.id, u.username, getColorForUserId(u.id));
+//             }
+//             $$('#status2').text(usernames.join(", "))
+//         }
+//     }
+//     // if we receive a text-change message with a delta, update the editor
+//     else if (data.type == "text_change" && data.delta) {
+//         quill.updateContents(data.delta);
+//     }
+//     // if we receive a text-change message with a delta, update the editor
+//     else if (data.type == "selection_change" && data.range) {
+//         cursors.moveCursor(data.userid, data.range)
+//     }
+//     else {
+//     }
+// }
 
-scriptSocket.onclose = function (e) {
-    console.error('Script socket closed unexpectedly', e)
-    $$('#status1').text('DISCONNECTED: Please reload page.')
-}
+// scriptSocket.onclose = function (e) {
+//     console.error('Script socket closed unexpectedly', e)
+//     $$('#status1').text('DISCONNECTED: Please reload page.')
+// }
 
 
 
@@ -115,35 +98,35 @@ scriptSocket.onclose = function (e) {
 // CURSORS (synchronization functions from within the quill editors)
 
 
-quill.on('text-change', function (delta, oldContents, source) {
-    // console.log("text changed", delta, oldContents, source)
-    if (source === 'user') {
-        // quill.updateContents(delta);
-        if (scriptSocket && scriptSocket.readyState == scriptSocket.OPEN) {
-            scriptSocket.send(JSON.stringify({
-                'type': 'text_change',
-                'delta': delta
-            }));
-        }
-    }
-});
+// quill.on('text-change', function (delta, oldContents, source) {
+//     // console.log("text changed", delta, oldContents, source)
+//     if (source === 'user') {
+//         // quill.updateContents(delta);
+//         if (scriptSocket && scriptSocket.readyState == scriptSocket.OPEN) {
+//             scriptSocket.send(JSON.stringify({
+//                 'type': 'text_change',
+//                 'delta': delta
+//             }));
+//         }
+//     }
+// });
 
-const sendUpdatedSelection = debounce((range) => {
-    scriptSocket.send(JSON.stringify({
-        'type': 'selection_change',
-        'userid': user_id,
-        'range': range
-    }))
-}, 500);
+// const sendUpdatedSelection = debounce((range) => {
+//     scriptSocket.send(JSON.stringify({
+//         'type': 'selection_change',
+//         'userid': user_id,
+//         'range': range
+//     }))
+// }, 500);
 
-quill.on('selection-change', function (range, oldRange, source) {
-    // console.log("selection changed", range, oldRange, source)
-    if (source === 'user') {
-        if (scriptSocket && scriptSocket.readyState == scriptSocket.OPEN) {
-            sendUpdatedSelection(range);
-        }
-    }
-});
+// quill.on('selection-change', function (range, oldRange, source) {
+//     // console.log("selection changed", range, oldRange, source)
+//     if (source === 'user') {
+//         if (scriptSocket && scriptSocket.readyState == scriptSocket.OPEN) {
+//             sendUpdatedSelection(range);
+//         }
+//     }
+// });
 
 function debounce(func, delay) {
     let timeoutId;
@@ -157,22 +140,22 @@ function debounce(func, delay) {
 
 
 function saveEditorState() {
-    if (is_owner == true) {
+    // if (is_owner == true) {
 
-        scriptSocket.send(JSON.stringify({
-            "type": "save_cmd",
-            "text": JSON.stringify(quill.getContents())
-        }));
-        let toast = app.toast.create({
-            text: 'Saved',
-            position: 'top',
-            closeTimeout: 1000,
-            closeButton: true
-        });
-        toast.open()
-    } else {
-        console.log("NOT the owner")
-    }
+    //     scriptSocket.send(JSON.stringify({
+    //         "type": "save_cmd",
+    //         "text": JSON.stringify(quill.getContents())
+    //     }));
+    //     let toast = app.toast.create({
+    //         text: 'Saved',
+    //         position: 'top',
+    //         closeTimeout: 1000,
+    //         closeButton: true
+    //     });
+    //     toast.open()
+    // } else {
+    //     console.log("NOT the owner")
+    // }
 }
 
 // UI LISTENERS
@@ -235,16 +218,9 @@ quill.on('text-change', (delta, oldDelta, source) => {
     }
 });
 
+
+
 document.addEventListener("keydown", function (e) {
-    // console.log("keyEvent", e)
-
-    // // catch 'enter' events and change style depending on current
-    // if(e.key="Enter"){
-    //     let thisLine = quill.getLine(quill.getSelection().index)[0]
-    //     let prevLine = thisLine.prev[0]
-    //     console.log("this and previous format", thisLine, prevLine)
-    // }
-
     //save document
     if ((window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey) && e.key == 's') {
         e.preventDefault();
@@ -276,24 +252,24 @@ function getCurrentLineNum() {
 }
 
 
-// UTILITY FUNCTIONS
-cursor_colors = [
-    "Blue",
-    "Red",
-    "Green",
-    "Purple",
-    "Orange",
-    "Brown",
-    "DarkRed",
-    "DarkBlue",
-    "DarkMagenta",
-    "DarkCyan",
-    "DarkTurquoise",
-]
-function getColorForUserId(userId) {
-    const colorIndex = userId % cursor_colors.length;
-    return cursor_colors[colorIndex];
-}
+// // UTILITY FUNCTIONS
+// cursor_colors = [
+//     "Blue",
+//     "Red",
+//     "Green",
+//     "Purple",
+//     "Orange",
+//     "Brown",
+//     "DarkRed",
+//     "DarkBlue",
+//     "DarkMagenta",
+//     "DarkCyan",
+//     "DarkTurquoise",
+// ]
+// function getColorForUserId(userId) {
+//     const colorIndex = userId % cursor_colors.length;
+//     return cursor_colors[colorIndex];
+// }
 
 function findCursorPosition() {
     let selection = window.getSelection();

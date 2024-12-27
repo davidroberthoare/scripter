@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <!-- Color theme for statusbar (Android only) -->
+    <meta name="theme-color" content="#2196f3" />
+    <!-- Your app title -->
+    <title>Scripter ~ Standalone</title>
+    <meta name="description" content="A Simple Collaborative Screenplay Editing App" />
+
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/favicon/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon/favicon-16x16.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="mask-icon" href="/img/favicon/safari-pinned-tab.svg" color="#61aafb" />
+    <link rel="shortcut icon" href="/img/favicon/favicon.ico" />
+    <meta name="msapplication-TileColor" content="#9eccff" />
+    <meta name="msapplication-config" content="/img/favicon/browserconfig.xml" />
+    <meta name="theme-color" content="#9eccff" />
+
+
+    <link rel="stylesheet" href="/css/framework7.min.css" />
+    <link rel="stylesheet" href="/css/styles.css" />
+
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.core.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+  </head>
+  <body>
+    <!-- App root element -->
+    <div id="app">
+
+      <!-- Your main view, should have "view-main" class -->
+      <div class="view view-main">
+        <!-- Initial Page, "data-name" contains page name -->
+        <div data-name="home" class="page">
+          <!-- Top Navbar -->
+            <div class="navbar">
+              <div class="navbar-bg"></div>
+              <div class="navbar-inner">
+                <div class="left">
+                  <div class="title">Scripter</div>
+                </div>
+                <div class="right">
+                  <button id="rename_btn" class="button">Rename</button>
+                  <button id="save_btn" class="button">Save</button>
+                </div>
+              </div>
+            </div>
+
+          <!-- Bottom Toolbar -->
+          <div class="toolbar toolbar-bottom">
+            <div class="toolbar-inner">
+              <span id="status1">(status1)</span>
+              <span id="status2">(status2)</span>
+            </div>
+          </div>
+
+          <!-- Scrollable page content -->
+          <div class="page-content">
+            <div id="editor-container">
+              <div id="quill-toolbar">
+                <span class="ql-formats">
+                  <button class="ql-scene" title="Scene">Scene</button>
+                  <button class="ql-action" title="Action">Action</button>
+                  <button class="ql-character" title="Character">Character</button>
+                  <button class="ql-dialogue" title="Dialogue">Dialogue</button>
+                  <button class="ql-parenthetical" title="Parenthetical">Parenthetical</button>
+                  <button class="ql-transition" title="Transition">Transition</button>
+                  <button class="ql-notes" title="Notes">Note</button>
+                  <button class="ql-lyrics" title="Lyrics">Lyric</button>
+                  <button class="ql-boneyard" title="Boneyard">Bone</button>
+                  <button class="ql-pagenum" title="Page Number">PgNum</button>
+                  <button class="ql-titlepage" title="Title Page">Title</button>
+                </span>
+                <span class="ql-formats">
+                  <button class="ql-bold"></button>
+                  <button class="ql-italic"></button>
+                </span>
+              </div>
+              <div id="editor"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Path to Framework7 Library Bundle JS -->
+    <script src="/js/framework7.min.js"></script>
+
+    <script>
+        var app = new Framework7({
+            el: '#app', // App root element
+            theme: 'auto',
+            panel: { swipe: true }, // Enable swipe panel
+            touch: { tapHold: true }, //enable tap hold events
+        });
+        var $$ = Dom7;
+        var mainView = app.views.create('.view-main');
+
+
+
+        //****** DOCUMENT READY
+        //****** DOCUMENT READY
+        //****** DOCUMENT READY
+        
+        $$(document).on('DOMContentLoaded', function() {
+            console.log("BASE ready");
+        });
+
+
+        //******* global API-calling function
+        function API({
+          endpoint="test", 
+          params={"foo":"bar"}, 
+          success_callback=false, 
+          error_callback=false, 
+          type="POST"
+        }){
+            let options = {
+                method: type, // or 'POST'
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+            }
+            if(type=="POST"){
+              options["body"] = JSON.stringify(params);
+            }else{
+              const queryString = new URLSearchParams(params).toString();
+              endpoint += "?" + queryString;
+            }
+
+            fetch('/api/'+endpoint, options)
+                .then(response => response.json()) // parses JSON response into native JavaScript objects 
+                .then(data => {
+                    //console.log(data)
+                    if (data.status && data.status == "error") {
+                        if(typeof error_callback === "function") error_callback();
+                    } else {
+                        if(typeof success_callback === "function") success_callback(data);
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    if(typeof error_callback === "function") error_callback();
+                });
+
+        };
+
+
+    </script>
+
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/quill-cursors@4.0.3/dist/quill-cursors.min.js"></script>
+
+<script>
+  const script_id = 123
+</script>
+<script src="/js/custom_tags.js"></script>
+<script src="/js/script_edit.js"></script>
+
+
+  </body>
+</html>
