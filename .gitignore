@@ -6,7 +6,6 @@ __pycache__
 media
 *.log
 *.bak 
-ecosystem.config.js
 notes.txt
 _OLD
 _BACKUP
