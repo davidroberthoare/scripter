@@ -1,0 +1,24 @@
+{% extends "main/base.html" %}
+{% load main_extras %}
+
+{% block main %}
+<div class="page-content">
+    <div class="block">
+        <p>This project is a work in progress by David Hoare, a ComTech teacher at <a href="https://cci.kprdsb.ca/" class="external">Cobourg Collegiate Institute</a>. It is intended to allow our students to write simple screenplay projects together, and is not intended as a professional-grade product.</p>
+
+        <p>Feel free to try it yourself and use it for your own personal projects... but please beware that it is still in active development, and might change at any time :)</p>
+        
+        <p><a href="mailto: david_hoare@kprdsb.ca">Contact me</a> with any questions or suggestions.</p>
+        <hr>
+        <p><a href="/terms" class="external">Terms and Conditions</a> and <a href="/privacy" class="external">Privacy Policy</a></p>
+    </div>
+</div>
+{% endblock main %}
+
+{% block script %}
+<script>
+    readyActions = function(){
+        console.log("runninig {{ title }} ReadyActions")
+    }
+</script>
+{% endblock script %}

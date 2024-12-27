@@ -1,0 +1,20 @@
+{% extends "main/base.html" %}
+{% load main_extras %}
+
+{% block main %}
+<div class="page-content">
+    <div class="block">
+        <h2>Whoops!</h2>
+        <p>There appears to be an error:</p>
+        <code>{{error}}</code>
+    </div>
+</div>
+{% endblock main %}
+
+{% block script %}
+<script>
+    readyActions = function(){
+        console.log("runninig {{ title }} ReadyActions")
+    }
+</script>
+{% endblock script %}

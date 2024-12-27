@@ -1,0 +1,71 @@
+{% extends 'main/base.html' %}
+{% load main_extras %}
+
+{% block head %}
+  <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.core.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+  <style></style>
+{% endblock %}
+
+{% block header_extra %}
+  {% if script.owner_id == user.id %}
+    <button id="rename_btn" class="button">Rename</button>
+    <button id="save_btn" class="button">Save</button>
+  {% endif %}  
+{% endblock %}
+
+{% block main %}
+  <div class="page-content">
+    <div id="editor-container">
+      <div id="quill-toolbar">
+        <span class="ql-formats">
+          <button class="ql-scene" title="Scene">Scene</button>
+          <button class="ql-action" title="Action">Action</button>
+          <button class="ql-character" title="Character">Character</button>
+          <button class="ql-dialogue" title="Dialogue">Dialogue</button>
+          <button class="ql-parenthetical" title="Parenthetical">Parenthetical</button>
+          <button class="ql-transition" title="Transition">Transition</button>
+          <button class="ql-notes" title="Notes">Note</button>
+          <button class="ql-lyrics" title="Lyrics">Lyric</button>
+          <button class="ql-boneyard" title="Boneyard">Bone</button>
+          <button class="ql-pagenum" title="Page Number">PgNum</button>
+          <button class="ql-titlepage" title="Title Page">Title</button>
+        </span>
+        <span class="ql-formats">
+          <button class="ql-bold"></button>
+          <button class="ql-italic"></button>
+        </span>
+      </div>
+      <div id="editor"></div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block script_includes %}
+  <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/quill-cursors@4.0.3/dist/quill-cursors.min.js"></script>
+{% endblock %}
+{% block script %}
+  {{ script_id|json_script:'script_id' }}
+  {{ is_owner|json_script:'is_owner' }}
+  <script>
+    const script_id = JSON.parse(document.getElementById('script_id').textContent)
+    const is_owner = JSON.parse(document.getElementById('is_owner').textContent)
+    let script_name = "{{script.name}}"
+
+    readyActions = function () {
+      console.log('running {{ title }} ReadyActions')
+    }
+  </script>
+  <script src="{% vstatic 'js/custom_tags.js' %}"></script>
+  <script src="{% vstatic 'js/script_edit.js' %}"></script>
+{% endblock %}
+
+{% block footer %}
+  <div class="toolbar toolbar-bottom">
+    <div class="toolbar-inner">
+      <span id="status1">(status1)</span>
+      <span id="status2">(status2)</span>
+    </div>
+  </div>
+{% endblock %}

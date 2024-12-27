@@ -1,0 +1,119 @@
+html,
+body {
+    font-family: Helvetica, Arial, sans-serif;
+}
+
+h1,
+h2 {
+    text-align: center;
+}
+
+/* framework7 overrides */
+:root{
+    --f7-toolbar-height: 1.5em;
+}
+
+.ql-snow.ql-toolbar button, .ql-snow .ql-toolbar button{
+    width: auto !important;
+}
+
+
+
+/* *************** SCRIPT EDITOR *************** */
+#editor-container {
+    margin: 0px;
+    width: 8.5in;
+    margin-bottom: 1em;
+    height: calc(100% - (var(--f7-navbar-height) + var(--f7-safe-area-top)));
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.ql-active{
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+
+/* *************** CUSTOM TAGS (within scripts)*************** */
+
+.ql-editor{
+    font-size: 14px;
+    font-family: 'Courier New', Courier, monospace;
+    line-height: 1.1em;
+    padding-top:1in;
+    padding-bottom:1.25in;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.custom{
+    display: block;
+    margin-bottom: 1em;
+    margin-left:1.5in;
+    margin-right:1.5in;
+}
+
+scene.custom {
+    /* color: blue; */
+    text-transform: uppercase;
+    margin-bottom: 1em;
+}
+
+action.custom {
+    /* color: rgb(81, 255, 0); */
+    margin-bottom: 1em;
+}
+
+character.custom {
+    /* color: rgb(162, 0, 255); */
+    /* text-align: center; */
+    text-transform: uppercase;
+    margin-bottom: 0em;
+    margin-left: 3.5in;
+}
+
+dialogue.custom {
+    /* color: rgb(255, 0, 34); */
+    margin-left: 2.5in;
+    margin-right: 2.5in;
+    margin-bottom: 1em;
+}
+
+parenthetical.custom {
+    /* color: rgb(238, 255, 0); */
+    /* text-align: center; */
+    margin-left: 3in;
+    margin-right: 3in;
+    margin-bottom: 0em;
+}
+
+lyrics.custom {
+    /* color: rgb(255, 230, 0); */
+}
+
+transition.custom {
+    /* color: rgb(0, 255, 255); */
+    text-align: right;
+    margin-bottom: 1em;
+}
+
+pagenum.custom {
+    /* color: rgb(80, 19, 62); */
+    text-align: right;
+    margin-bottom: 1em;
+}
+
+titlepage.custom {
+    /* color: rgb(80, 80, 80); */
+}
+
+notes.custom {
+    /* color: rgb(255, 187, 0); */
+}
+
+boneyard.custom {
+    color: rgb(190, 190, 190);
+}
+
+

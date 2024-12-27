@@ -1,0 +1,13 @@
+.env
+venv
+__pycache__
+*.pot
+*.pyc
+media
+*.log
+*.bak 
+ecosystem.config.js
+notes.txt
+_OLD
+_BACKUP
+.vscode

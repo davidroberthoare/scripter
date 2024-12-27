@@ -1,0 +1,265 @@
+{% load static %}
+{% load main_extras %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <!-- Color theme for statusbar (Android only) -->
+    <meta name="theme-color" content="#2196f3" />
+    <!-- Your app title -->
+    <title>Scripter ~ {{ title }}</title>
+    <meta name="description"
+      content="{% if meta_description %}
+        {{ meta_description }}
+      {% else %}
+        A Simple Collaborative Screenplay Editing App
+      {% endif %}" />
+
+    <script>
+        {% if user.is_authenticated %}
+        const user_id = "{{ user.id }}";
+        const csrftoken = "{{ csrf_token }}";
+        {% else %}
+        const user_id = false;
+        {% endif %}
+    </script>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/favicon/apple-touch-icon.png' %}" />
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicon/favicon-32x32.png' %}" />
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'img/favicon/favicon-16x16.png' %}" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="mask-icon" href="{% static 'img/favicon/safari-pinned-tab.svg' %}" color="#61aafb" />
+    <link rel="shortcut icon" href="{% static 'img/favicon/favicon.ico' %}" />
+    <meta name="msapplication-TileColor" content="#9eccff" />
+    <meta name="msapplication-config" content="{% static 'img/favicon/browserconfig.xml' %}" />
+    <meta name="theme-color" content="#9eccff" />
+
+    <script>
+        {% comment %} if (typeof navigator.serviceWorker !== 'undefined') {
+            navigator.serviceWorker.register('/sw.js')
+        } {% endcomment %}
+    </script>
+
+    <link rel="stylesheet" href="{% static 'css/framework7.min.css' %}" />
+    <link rel="stylesheet" href="{% vstatic 'css/styles.css' %}" />
+
+    {% block head %}
+    {% endblock %}
+  </head>
+  <body>
+    <!-- App root element -->
+    <div id="app">
+      <!-- left panel -->
+      <div class="panel panel-left panel-cover">
+        <div class="list">
+          <ul>
+            {% if user.is_authenticated %}
+              <li>
+                <a href="/home" class="item-content item-link external">
+                  <div class="item-media">
+                    <i class="f7-icons">house</i>
+                  </div>
+                  <div class="item-inner">
+                    <div class="item-title">Home</div>
+                  </div>
+                </a>
+              </li>
+
+              {% if script %}
+                {% if script.owner == request.user %}
+                  <li class="item-divider"></li>
+
+                  <li>
+                    <a href="/{{ code }}" class="item-content item-link external">
+                      <div class="item-media">
+                        <i class="f7-icons">person_3</i>
+                      </div>
+                      <div class="item-inner">
+                        <div class="item-title">Player</div>
+                      </div>
+                    </a>
+                  </li>
+                {% endif %}
+              {% endif %}
+
+              <li class="item-divider"></li>
+
+              {% comment %}
+              <li>
+                <a href="/accounts/logout" class="item-content item-link external">
+                  <div class="item-media">
+                    <i class="f7-icons">person_crop_circle_badge_xmark</i>
+                  </div>
+                  <div class="item-inner">
+                    <div class="item-title">Logout</div>
+                  </div>
+                </a>
+
+                <form method="post" action="{% url 'logout' %}">
+                  {% csrf_token %}
+                  <button type="submit">logout</button>
+                </form>
+              </li> {% endcomment %}
+
+              <li>
+                <a href="#" class="item-content item-link external">
+                  <div class="item-media">
+                    <i class="f7-icons">person_crop_circle_badge_xmark</i>
+                  </div>
+                  <div class="item-inner">
+                    <form method="post" action="{% url 'logout' %}">
+                      {% csrf_token %}
+                      <div type="submit" class="item-title" onclick="javascript:this.parentNode.submit();">Logout</div>
+                    </form>
+                  </div>
+                </a>
+              </li>
+            {% else %}
+              <li>
+                <a href="/accounts/login" class="item-content item-link external">
+                  <div class="item-media">
+                    <i class="f7-icons">lock_open</i>
+                  </div>
+                  <div class="item-inner">
+                    <div class="item-title">Login / Register</div>
+                  </div>
+                </a>
+              </li>
+            {% endif %}
+
+            <li>
+              <a href="/about" class="item-content item-link external">
+                <div class="item-media">
+                  <i class="f7-icons">question_circle</i>
+                </div>
+                <div class="item-inner">
+                  <div class="item-title">About This App</div>
+                </div>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Your main view, should have "view-main" class -->
+      <div class="view view-main">
+        <!-- Initial Page, "data-name" contains page name -->
+        <div data-name="home" class="page">
+          <!-- Top Navbar -->
+          {% block header %}
+            <div class="navbar">
+              <div class="navbar-bg"></div>
+              <div class="navbar-inner">
+                <div class="left">
+                  <a href="#" aria-label="Open/Close Personal Menu" class="link panel-open" data-panel="left"><i class="f7-icons">ellipsis_vertical</i></a>
+                </div>
+                <div class="title">{{ title }}</div>
+                <div class="right">
+                  {% block header_extra %}{% endblock %}
+                  {% if user.is_authenticated %}
+                    {{ user.first_name }}
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          {% endblock %}
+
+          <!-- Bottom Toolbar -->
+          {% block footer %}
+
+          {% endblock %}
+
+          <!-- Scrollable page content -->
+          {% block main %}
+            <div class="page-content">
+              <p>Page content goes here</p>
+            </div>
+          {% endblock %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Path to Framework7 Library Bundle JS -->
+    <script src="{% static 'js/framework7.min.js' %}"></script>
+    <script src="{% static 'js/moment.min.js' %}"></script>
+
+    <script>
+        var app = new Framework7({
+            el: '#app', // App root element
+            theme: 'auto',
+            panel: { swipe: true }, // Enable swipe panel
+            touch: { tapHold: true }, //enable tap hold events
+        });
+        var $$ = Dom7;
+        var mainView = app.views.create('.view-main');
+
+
+
+        //****** DOCUMENT READY
+        //****** DOCUMENT READY
+        //****** DOCUMENT READY
+        
+        let readyActions = function(){
+            console.log("runninig BASE ReadyActions")
+            
+        }
+
+
+        $$(document).on('DOMContentLoaded', function() {
+            console.log("BASE ready");
+            if(readyActions) readyActions();
+        });
+
+
+        //******* global API-calling function
+        function API({
+          endpoint="test", 
+          params={"foo":"bar"}, 
+          success_callback=false, 
+          error_callback=false, 
+          type="POST"
+        }){
+            let options = {
+                method: type, // or 'POST'
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+            }
+            if(type=="POST"){
+              options["body"] = JSON.stringify(params);
+            }else{
+              const queryString = new URLSearchParams(params).toString();
+              endpoint += "?" + queryString;
+            }
+
+            fetch('/api/'+endpoint, options)
+                .then(response => response.json()) // parses JSON response into native JavaScript objects 
+                .then(data => {
+                    //console.log(data)
+                    if (data.status && data.status == "error") {
+                        if(typeof error_callback === "function") error_callback();
+                    } else {
+                        if(typeof success_callback === "function") success_callback(data);
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    if(typeof error_callback === "function") error_callback();
+                });
+
+        };
+
+
+    </script>
+
+    {% block script_includes %}
+    {% endblock %}
+    {% block script %}
+    {% endblock %}
+  </body>
+</html>
